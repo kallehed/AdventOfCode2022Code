@@ -6,70 +6,151 @@
 #include <vector>
 #include <algorithm>
 #include <array>
+#include <unordered_set>
+#include <utility>
+
+bool operator == (std::pair<int,int> const& lhs, std::pair<int, int> const& rhs)
+{
+    return lhs.first == rhs.first && lhs.second == rhs.second;
+}
+
+struct Hash {
+    size_t operator()(const std::pair<int,int>& nums) const {
+        return (size_t)(std::abs(nums.first) * std::abs(nums.second));
+    }
+};
 
 void day9_1()
 {
+    std::array<std::pair<char, int>, 2000> actions = { { { ' ', 0 } } };
+
+    std::ifstream file("day9.txt");
+    if (file.is_open()) {
+        int i = 0;
+        for (std::string line; std::getline(file, line); )
+        {
+            actions[i].first = line[0];
+            actions[i].second = std::stoi(line.substr(2));
+            ++i;
+        }
+        file.close();
+    }    
 
     int head_x = 0;
     int head_y = 0;
     int tail_x = 0;
     int tail_y = 0;
+    std::unordered_set<std::pair<int, int>, Hash> poses;
 
-    std::array<std::array<bool, 2000>, 2000> matrix = { {false} };
+    for (auto& ac : actions) {
+        for (int _ = 0; _ < ac.second; _++) {
+            if      (ac.first == 'U') { head_y++; }
+            else if (ac.first == 'D') { head_y--; }
+            else if (ac.first == 'R') { head_x++; }
+            else if (ac.first == 'L') { head_x--; }
+            else { std::cout << "ERROR"; std::cin.get(); }
 
+            int dx = head_x - tail_x;
+            int dy = head_y - tail_y;
 
-    std::ifstream file("day9.txt");
-    if (file.is_open()) {
-        std::cout << "pos: " << tail_x << " " << tail_y << '\n';
-        for (std::string line; std::getline(file, line); )
-        {
-            int times = std::stoi(line.substr(2));
-            char action = line[0];
-            std::cout << "action: " << action << " " << times << '\n';
-
-            for (int _ = 0; _ < times; ++_) {
-                matrix[tail_y + 1000][tail_x + 1000] = true;
-                if (action == 'R') { ++head_x; }
-                if (action == 'L') { --head_x; }
-                if (action == 'U') { ++head_y; }
-                if (action == 'D') { --head_y; }
-
-                int old_head_x = head_x, old_head_y = head_y;
-
-                if (std::abs(head_x - tail_x) >= 2) {
-                    if (head_x > tail_x) { ++tail_x; }
-                    else { --tail_x; }
-                    if (std::abs(head_y - tail_y) >= 1) {
-                        
-                        if (head_y > tail_y) { ++tail_y; }
-                        else { --tail_y; }
-                    }
-                }
-                else if (std::abs(head_y - tail_y) >= 2) {
-                    if (head_y > tail_y) { ++tail_y; }
-                    else { --tail_y; }
-                    if (std::abs(head_x - tail_x) >= 1) {
-
-                        if (head_x > tail_x) { ++tail_x; }
-                        else { --tail_x; }
-                    }
-                }
-                std::cout << "pos: " << tail_x << " " << tail_y << '\n';
-
-                
+            if (dx == 2 && dy == 1) {
+                ++tail_x; ++tail_y;
             }
-            
+            if (dx == 2 && dy == -1) {
+                ++tail_x; --tail_y;
+            }
+            if (dx == 1 && dy == 2) {
+                ++tail_x; ++tail_y;
+            }
+            if (dx == 1 && dy == -2) {
+                ++tail_x; --tail_y;
+            }
+            if (dx == -1 && dy == 2) {
+                --tail_x; ++tail_y;
+            }
+            if (dx == -1 && dy == -2) {
+                --tail_x; --tail_y;
+            }
+            if (dx == -2 && dy == 1) {
+                --tail_x; ++tail_y;
+            }
+            if (dx == -2 && dy == -1) {
+                --tail_x; --tail_y;
+            }
+            if (dx == -2 && dy == 0) { --tail_x; }
+            if (dx == 2 && dy == 0) { ++tail_x; }
+            if (dy == -2 && dx == 0) { --tail_y; }
+            if (dy == 2 && dx == 0) { ++tail_y; }
+
+            poses.insert({ tail_x, tail_y });
+
+            if (std::abs(tail_x - head_x) > 1 || std::abs(tail_y - head_y) > 1) { std::cout << "ER " << tail_x << ' ' << tail_y << ' ' << head_x << ' ' << head_y << ' ' << ac.first; std::cin.get(); }
         }
-        file.close();
     }
 
     int count = 0;
-    for (int i = 0; i < matrix.size(); ++i) {
-        for (int j = 0; j < matrix[i].size(); ++j) {
-            if (matrix[i][j]) ++count;
+    count = (int)poses.size();
+    std::cout << count;
+}
+
+void day9_2()
+{
+    std::array<std::pair<char, int>, 2000> actions = { { { ' ', 0 } } };
+
+    std::ifstream file("day9.txt");
+    if (file.is_open()) {
+        int i = 0;
+        for (std::string line; std::getline(file, line); )
+        {
+            actions[i].first = line[0];
+            actions[i].second = std::stoi(line.substr(2));
+            ++i;
+        }
+        file.close();
+    }
+    std::array<std::pair<int, int>, 10> knots;
+    std::unordered_set<std::pair<int, int>, Hash> poses;
+
+    for (auto& ac : actions) {
+        for (int _ = 0; _ < ac.second; _++) {
+            auto& head = knots[0];
+            if (ac.first == 'U')      { head.second++; }
+            else if (ac.first == 'D') { head.second--; }
+            else if (ac.first == 'R') { head.first++; }
+            else if (ac.first == 'L') { head.first--; }
+            else { std::cout << "ERROR"; std::cin.get(); }
+
+            for (int i = 1; i < knots.size(); ++i) {
+                auto& prev = knots[i - 1];
+                auto& cur = knots[i];
+
+                int dx = prev.first - cur.first;
+                int dy = prev.second - cur.second;
+
+                if (std::abs(dx) > 1) {
+                    if (prev.first > cur.first) { cur.first++; }
+                    else { cur.first--; }
+                    if (std::abs(dy) > 0) {
+                        if (prev.second > cur.second) { cur.second++; }
+                        else { cur.second--; }
+                    }
+                } else if (std::abs(dy) > 1) {
+                    if (prev.second > cur.second) { cur.second++; }
+                    else { cur.second--; }
+                    if (std::abs(dx) > 0) {
+                        if (prev.first > cur.first) { cur.first++; }
+                        else { cur.first--; }
+                    }
+                }
+            }
+
+            poses.insert(knots[9]);
+
+            //if (std::abs(tail_x - head_x) > 1 || std::abs(tail_y - head_y) > 1) { std::cout << "ER " << tail_x << ' ' << tail_y << ' ' << head_x << ' ' << head_y << ' ' << ac.first; std::cin.get(); }
         }
     }
+
+    int count = 0;
+    count = (int)poses.size();
     std::cout << count;
-
-
 }
