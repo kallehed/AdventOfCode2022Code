@@ -50,6 +50,9 @@
     <ClInclude Include="day10.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="day12.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="day1.txt">
@@ -86,6 +89,9 @@
       <Filter>Header Files</Filter>
     </Text>
     <Text Include="day11.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="day12.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
