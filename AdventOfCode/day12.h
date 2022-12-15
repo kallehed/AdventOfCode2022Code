@@ -17,7 +17,7 @@ constexpr int8_t WIDTH = 66;
 constexpr int8_t HEIGHT = 41;
 //constexpr int8_t WIDTH = 8;
 //constexpr int8_t HEIGHT = 5;
-using Form = std::array<std::array<bool, WIDTH>, HEIGHT>;
+using Form = std::array<std::array<int, WIDTH>, HEIGHT>;
 using mapForm = std::array<std::array<char, WIDTH>, HEIGHT>;
 
 void print_where_been(Form& where_been) {
@@ -29,41 +29,24 @@ void print_where_been(Form& where_been) {
     }
 }
 
-int recur(Form& where_been, Pos wher, mapForm& map, Pos& end)
+void recur(Form& where_been, Pos wher, mapForm& map, Pos& end, int steps) // basically djikstras algorithm
 {
-    if (wher.x == end.x && wher.y == end.y) {
-        //if (steps < 100) std::cout << steps << '\n';
-        
-        //if (steps == 437) {
-            //print_where_been(where_been);
-        //}
-          
-        return 0;
+    if (steps < where_been[wher.y][wher.x]) { 
+        where_been[wher.y][wher.x] = steps; }
+    else {
+        return;
     }
-
-    int least_steps = INT_MAX;
 
     constexpr std::array<Pos, 4> ways = { { {1,0},{0,1},{0,-1},{-1,0} } };
 
     for (auto& way : ways) {
         Pos n_pos = { wher.x + way.x, wher.y + way.y };
         if (n_pos.x >= 0 && n_pos.x < WIDTH && n_pos.y >= 0 && n_pos.y < HEIGHT) {
-            if (!where_been[n_pos.y][n_pos.x] && (map[wher.y][wher.x] + 1 >= map[n_pos.y][n_pos.x])) {
-                where_been[n_pos.y][n_pos.x] = true;
-                int took = recur(where_been, n_pos, map, end);
-                if (took == -1) {
-
-                }
-                else {
-                    if (took < least_steps) { least_steps = 1 + took; }
-                    where_been[n_pos.y][n_pos.x] = false;
-                }
+            if ((map[wher.y][wher.x] + 1 >= map[n_pos.y][n_pos.x])) {
+                recur(where_been, n_pos, map, end, steps+1);
             }
         }
     }
-
-    if (least_steps == INT_MAX) { return -1; }
-    return least_steps;
 
 }
 
@@ -87,12 +70,59 @@ void day12_1()
         }
         file.close();
     }
-    Form start_form = { false };
+    Form start_form;
+    for (int i = 0; i < HEIGHT; ++i) {
+        for (int j = 0; j < WIDTH; ++j) {
+            start_form[i][j] = INT_MAX;
+        }
+    }
 
-    start_form[start.y][start.x] = true;
     map[start.y][start.x] = 'a';
 
     map[end.y][end.x] = 'z';
 
-    std::cout << recur(start_form, start, map, end);
+    recur(start_form, start, map, end, 0);
+    std::cout << "res: " << start_form[end.y][end.x];
+}
+
+void day12_2()
+{
+
+    mapForm map;
+
+    Pos end = { -1, -1 };
+
+    std::vector<Pos> start_poses;
+
+    std::ifstream file("day12.txt");
+    if (file.is_open())
+    {
+        int i = 0;
+        for (std::string line; std::getline(file, line); )
+        {
+            for (int j = 0; j < line.size(); ++j) { map[i][j] = line[j]; if (line[j] == 'S' || line[j] == 'a') { start_poses.push_back(Pos{ (char)j,(char)i }); map[i][j] = 'a'; } if (line[j] == 'E') { end.x = j; end.y = i; } }
+
+            ++i;
+        }
+        file.close();
+    }
+
+    int least = INT_MAX;
+
+    for (auto& st : start_poses) {
+        Form start_form;
+        for (int i = 0; i < HEIGHT; ++i) {
+            for (int j = 0; j < WIDTH; ++j) {
+                start_form[i][j] = INT_MAX;
+            }
+        }
+
+        map[end.y][end.x] = 'z';
+
+        recur(start_form, st, map, end, 0);
+        int l = start_form[end.y][end.x];
+        std::cout << "res: " << l;
+        if (l < least) { least = l; }
+    }
+    std::cout << '\n' << "FINAL: " << least;
 }
