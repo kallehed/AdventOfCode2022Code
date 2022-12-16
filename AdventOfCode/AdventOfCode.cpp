@@ -3,12 +3,12 @@
 
 
 #include <iostream>
-#include "day14.h"
+#include "day15.h"
 
 int main()
 {
     std::cout << "Hello World!\n";
-    day14_2();
+    day15_2();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
