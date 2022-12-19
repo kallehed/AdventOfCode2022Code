@@ -80,6 +80,9 @@
     <ClInclude Include="day19_part2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="day19_part2_second_version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="day1.txt">
