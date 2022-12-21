@@ -19,38 +19,55 @@ enum class OPER : char
     UNDEFINED,
 };
 
+struct MonkeyWithNum
+{
+    int64_t num;
+};
+struct MonkeyWithoutNum
+{
+    int16_t monk1;
+    int16_t monk2;
+    OPER op;
+};
+
+union SomeMonkey
+{
+    MonkeyWithNum has_num;
+    MonkeyWithoutNum has_not;
+};
+
 struct Monkey
 {
     bool has_num;
-    int64_t num;
-    int monkey1;
-    int monkey2;
-    OPER op;
+    SomeMonkey some;
 };
+
+
 
 int64_t calc_monk(const std::vector<Monkey>& monks, int index) // calculate the value of a specific monkey, by recursively asking it's monkeys what their answers are.
 {
     auto& cur = monks[index];
     if (cur.has_num) {
-        return cur.num;
+        return cur.some.has_num.num;
     }
     else {
-        int64_t i1 = calc_monk(monks, cur.monkey1);
-        int64_t i2 = calc_monk(monks, cur.monkey2);
+        auto& m = cur.some.has_not;
+        int64_t i1 = calc_monk(monks, m.monk1);
+        int64_t i2 = calc_monk(monks, m.monk2);
         
-        if (cur.op == OPER::PLUS) {
+        switch (m.op) {
+        case OPER::PLUS:
             return i1 + i2;
-        }
-        else if (cur.op == OPER::MINUS) {
+        case OPER::MINUS:
             return i1 - i2;
-        }
-        else if (cur.op == OPER::MULT) {
+        case OPER::MULT:
             return i1 * i2;
-        }
-        else if (cur.op == OPER::DIV) {
+        case OPER::DIV:
             return i1 / i2;
+        default:
+            std::cout << "ERROR";
+            return -1;
         }
-        std::cout << "ERROR";
     }
 }
 
@@ -81,31 +98,27 @@ void day21_1()
                 Monkey m;
                 if (line[6] >= '0' && line[6] <= '9') {
                     m.has_num = true;
-                    m.num = std::stoi(line.substr(6));
-                    m.monkey1 = -1;
-                    m.monkey2 = -1;
-                    m.op = OPER::UNDEFINED;
+                    m.some.has_num.num = std::stoi(line.substr(6));
                 }
                 else {
                     m.has_num = false;
-                    m.num = -1;
                     std::string m1 = line.substr(6, 4);
                     std::string m2 = line.substr(13, 4);
-                    m.monkey1 = name_to_index.at(m1);
-                    m.monkey2 = name_to_index.at(m2);
+                    m.some.has_not.monk1 = name_to_index.at(m1);
+                    m.some.has_not.monk2 = name_to_index.at(m2);
 
                     char c = line[11];
                     if (c == '+') {
-                        m.op = OPER::PLUS;
+                        m.some.has_not.op = OPER::PLUS;
                     }
                     else if (c == '-') {
-                        m.op = OPER::MINUS;
+                        m.some.has_not.op = OPER::MINUS;
                     }
                     else if (c == '*') {
-                        m.op = OPER::MULT;
+                        m.some.has_not.op = OPER::MULT;
                     }
                     else if (c == '/') {
-                        m.op = OPER::DIV;
+                        m.some.has_not.op = OPER::DIV;
                     }
                     else {
                         std::cout << "ERROR";
@@ -148,27 +161,23 @@ void day21_2()
                 Monkey m;
                 if (line[6] >= '0' && line[6] <= '9') {
                     m.has_num = true;
-                    m.num = std::stoi(line.substr(6));
-                    m.monkey1 = -1;
-                    m.monkey2 = -1;
-                    m.op = OPER::UNDEFINED;
+                    m.some.has_num.num = std::stoi(line.substr(6));
                 }
                 else {
                     m.has_num = false;
-                    m.num = -1;
                     std::string m1 = line.substr(6, 4);
                     std::string m2 = line.substr(13, 4);
-                    m.monkey1 = name_to_index.at(m1);
-                    m.monkey2 = name_to_index.at(m2);
+                    m.some.has_not.monk1 = name_to_index.at(m1);
+                    m.some.has_not.monk2 = name_to_index.at(m2);
                     char c = line[11];
                     if (c == '+') { 
-                        m.op = OPER::PLUS; }
+                        m.some.has_not.op = OPER::PLUS; }
                     else if (c == '-') { 
-                        m.op = OPER::MINUS; }
+                        m.some.has_not.op = OPER::MINUS; }
                     else if (c == '*') { 
-                        m.op = OPER::MULT; }
+                        m.some.has_not.op = OPER::MULT; }
                     else if (c == '/') { 
-                        m.op = OPER::DIV; }
+                        m.some.has_not.op = OPER::DIV; }
                     else {
                         std::cout << "ERROR";
                     }
@@ -182,7 +191,7 @@ void day21_2()
 
     auto& root = monkeys[name_to_index.at("root")];
 
-    auto res2 = calc_monk(monkeys, root.monkey2); // I saw that this was constant with my input
+    auto res2 = calc_monk(monkeys, root.some.has_not.monk2); // I saw that this was constant with my input
 
     auto& you = monkeys[name_to_index.at("humn")];
     you.has_num = true;
@@ -190,8 +199,8 @@ void day21_2()
     int64_t num_to_yell = 0;
     while (true)
     {    
-        you.num = num_to_yell;
-        auto res1 = calc_monk(monkeys, root.monkey1);
+        you.some.has_num.num = num_to_yell;
+        auto res1 = calc_monk(monkeys, root.some.has_not.monk1);
 
         if (res1 == res2) {
             std::cout << "SUCCESS: " << num_to_yell;
