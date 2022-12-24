@@ -1,14 +1,12 @@
 // AdventOfCode.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-
 #include <iostream>
-#include "day22.h"
-
+#include "day23_part2.h"
 int main()
 {
     std::cout << "Hello Worlds!\n";
-    day22_1();
+    day23_2();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
