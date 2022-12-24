@@ -2,11 +2,11 @@
 //
 
 #include <iostream>
-#include "day23_part2.h"
+#include "day24_part2.h"
 int main()
 {
     std::cout << "Hello Worlds!\n";
-    day23_2();
+    day24_2();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
