@@ -156,6 +156,7 @@
     <ClInclude Include="day23_part2.h" />
     <ClInclude Include="day24.h" />
     <ClInclude Include="day24_part2.h" />
+    <ClInclude Include="day25.h" />
     <ClInclude Include="day3.h" />
     <ClInclude Include="day4.h" />
     <ClInclude Include="day5.h" />
@@ -183,6 +184,7 @@
     <Text Include="day22.txt" />
     <Text Include="day23.txt" />
     <Text Include="day24.txt" />
+    <Text Include="day25.txt" />
     <Text Include="day3.txt" />
     <Text Include="day4.txt" />
     <Text Include="day5.txt" />
